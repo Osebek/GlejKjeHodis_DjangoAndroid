@@ -105,7 +105,7 @@ public class LocationDetailFragment extends Fragment {
 
 
         Picasso.with(container.getContext()).load("http://10.0.2.2:8000/"+ BackendAPICall.repairURL(mParamPicture))
-                .resize(width-40,height/3)
+                .resize(width-40,height/4)
                 .centerCrop()
                 .into(picture);
 

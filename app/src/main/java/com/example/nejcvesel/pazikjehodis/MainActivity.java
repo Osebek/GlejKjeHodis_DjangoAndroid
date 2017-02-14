@@ -40,6 +40,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.vision.Frame;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  * Created by brani on 12/18/2016.
  */
@@ -57,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Boolean isFabOpen = false;
     private FloatingActionButton fab,fab1,fab2;
     private Animation fab_open,fab_close,rotate_forward,rotate_backward;
+    public ArrayList<String> pathLocations = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -266,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 floatA.setVisibility(View.VISIBLE);
                 floatB.setVisibility(View.VISIBLE);
                 floatC.setVisibility(View.VISIBLE);
-
+                pathLocations.clear();
                 fm.beginTransaction().replace(R.id.content_frame, new MapsFragment(), "MapFragment").addToBackStack("MapFragment").commit();
                 break;
             case R.id.nav_login:
@@ -282,6 +286,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 floatB.setVisibility(View.GONE);
                 floatC.setVisibility(View.GONE);
                 fm.beginTransaction().replace(R.id.content_frame, new LocationFragment(), "LocationFragment").addToBackStack("LocationFragment").commit();
+                break;
+            case R.id.nav_paths:
+                floatA.setVisibility(View.GONE);
+                floatB.setVisibility(View.GONE);
+                floatC.setVisibility(View.GONE);
+                fm.beginTransaction().replace(R.id.content_frame, new PathListFragment(), "LocationFragment").addToBackStack("LocationFragment").commit();
                 break;
             case R.id.nav_home:
                 Intent intent = new Intent(getApplicationContext(),MainMenuActivity.class);
@@ -416,4 +426,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void AddMarker(Marker marker){
         currentMarker = marker;
     }
+
+    public void showLocationOnMap(View v, String pathLocations)
+    {
+
+        pathLocations  = pathLocations.replaceAll("\\[","");
+        pathLocations  = pathLocations.replaceAll("\\]","");
+        pathLocations = pathLocations.replaceAll(" ","");
+        String[] pathLocationArray = pathLocations.split(",");
+
+        for (int i = 0; i < pathLocationArray.length; i++)
+        {
+            this.pathLocations.add(pathLocationArray[i]);
+        }
+        FragmentManager fm = getFragmentManager();
+        fm.beginTransaction().replace(R.id.content_frame, new MapsFragment(), "MapFragment").addToBackStack("MapFragment").commit();
+
+
+
+    }
+
+
 }

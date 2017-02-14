@@ -13,7 +13,6 @@
     <android.support.v7.widget.CardView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        card_view:contentPadding="@dimen/activity_horizontal_margin"
         android:paddingLeft="2dp"
         android:paddingRight="2dp"
         card_view:cardCornerRadius="7dp"
@@ -31,29 +30,28 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="5dp"
-            android:paddingLeft="2dp"
-            android:paddingRight="2dp"
             android:layout_marginLeft="2dp"
             android:layout_marginRight="2dp">
 
 
-            <TextView fontPath="fonts/Ubuntu-bold.ttf"
+            <TextView fontPath="fonts/Ubuntu-medium.ttf"
                 android:id="@+id/loc_detail_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="2dp"
                 android:paddingRight="@dimen/activity_horizontal_margin"
                 android:textSize="20sp"
-                android:textColor="@color/black"
+                android:textColor="@color/darkGrey"
                 />
 
-            <TextView fontPath="fonts/Ubuntu-italic.ttf"
+            <TextView fontPath="fonts/Ubuntu-light.ttf"
                 android:id="@+id/loc_detail_name"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:paddingLeft="2dp"
+                android:paddingLeft="3dp"
                 android:paddingRight="64dp"
-                android:textSize="15dp"
+                android:textSize="12sp"
+                android:textColor="@color/darkGrey"
                 android:layout_below="@id/loc_detail_title"
                 />
 
@@ -61,8 +59,7 @@
                 android:id="@+id/latitude"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:paddingLeft="2dp"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="4dp"
                 android:layout_below="@id/loc_detail_name"
                 android:textSize="12sp"
                 android:visibility="invisible"/>

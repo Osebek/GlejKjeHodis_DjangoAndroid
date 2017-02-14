@@ -136,6 +136,33 @@ public class BackendAPICall {
         });
     }
 
+    public void getAllPathsToAdapter(String authToken, final MyPathAdapter myPathAdapter) {
+
+        List<Path> locations = new ArrayList<Path>();
+        PathInterface service =
+                ServiceGenerator.createService(PathInterface.class, authToken);
+
+        Call<List<Path>> call = service.getAllPaths();
+        call.enqueue(new Callback<List<Path>>() {
+            @Override
+            public void onResponse(Call<List<Path>> call, Response<List<Path>> response) {
+                List<Path> paths= response.body();
+
+                for (Path pth : paths)
+                {
+                    myPathAdapter.addData(pth);
+                    System.out.println("dodal");
+                }
+                //BackendAPICall.printLocations(locations);
+            }
+
+            @Override
+            public void onFailure(Call<List<Path>> call, Throwable t) {
+                System.out.println("Fetching locations did not work");
+            }
+        });
+    }
+
     public void getSpecificLocation(String authToken, String locationID) {
         LocationInterface service =
                 ServiceGenerator.createService(LocationInterface.class, authToken);

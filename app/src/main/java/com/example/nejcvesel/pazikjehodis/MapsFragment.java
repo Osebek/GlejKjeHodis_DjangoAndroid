@@ -127,35 +127,68 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
 
         });
 
+        MainActivity main = (MainActivity) getActivity();
+        if (main.pathLocations.size() > 0)
+        {
+            for (int i = 0; i < main.pathLocations.size(); i++) {
+                Location location = new Location();
+                LocationInterface service =
+                        ServiceGenerator.createService(LocationInterface.class, MainActivity.authToken);
+
+                Call<Location> call = service.getSpecificLocation(main.pathLocations.get(i));
+                call.enqueue(new Callback<Location>() {
+                    @Override
+                    public void onResponse(Call<Location> call, Response<Location> response) {
+                        Location loc = response.body();
+                            LatLng lok = new LatLng(Double.valueOf(loc.getLatitude()), Double.valueOf(loc.getLongtitude()));
+                            Marker marker = mMap.addMarker(new MarkerOptions()
+                                    .position(lok)
+                                    .title(loc.getTitle()));
+                            markerLocationMap.put(marker, loc);
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<Location> call, Throwable t) {
+                        System.out.println("Fetching locations did not work");
+                    }
+                });
+
+            }
 
 
+        }
 
-        List<Location> locations = new ArrayList<Location>();
-        LocationInterface service =
-                ServiceGenerator.createService(LocationInterface.class, MainActivity.authToken);
+        else {
 
-        Call<List<Location>> call = service.getAllLocations();
-        call.enqueue(new Callback<List<Location>>() {
-            @Override
-            public void onResponse(Call<List<Location>> call, Response<List<Location>> response) {
-                List<Location> locations = response.body();
-                for (Location loc : locations)
-                {
-                    LatLng lok = new LatLng(Double.valueOf(loc.getLatitude()),Double.valueOf(loc.getLongtitude()));
-                    Marker marker = mMap.addMarker(new MarkerOptions()
-                    .position(lok)
-                    .title(loc.getTitle()));
-                    markerLocationMap.put(marker,loc);
+
+            List<Location> locations = new ArrayList<Location>();
+            LocationInterface service =
+                    ServiceGenerator.createService(LocationInterface.class, MainActivity.authToken);
+
+            Call<List<Location>> call = service.getAllLocations();
+            call.enqueue(new Callback<List<Location>>() {
+                @Override
+                public void onResponse(Call<List<Location>> call, Response<List<Location>> response) {
+                    List<Location> locations = response.body();
+                    for (Location loc : locations) {
+                        LatLng lok = new LatLng(Double.valueOf(loc.getLatitude()), Double.valueOf(loc.getLongtitude()));
+                        Marker marker = mMap.addMarker(new MarkerOptions()
+                                .position(lok)
+                                .title(loc.getTitle()));
+                        markerLocationMap.put(marker, loc);
+
+                    }
 
                 }
 
-            }
+                @Override
+                public void onFailure(Call<List<Location>> call, Throwable t) {
+                    System.out.println("Fetching locations did not work");
+                }
+            });
 
-            @Override
-            public void onFailure(Call<List<Location>> call, Throwable t) {
-                System.out.println("Fetching locations did not work");
-            }
-        });
+        }
 
 
     }

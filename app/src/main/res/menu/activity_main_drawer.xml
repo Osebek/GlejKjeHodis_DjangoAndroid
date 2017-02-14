@@ -12,6 +12,9 @@
             android:id="@+id/nav_details"
             android:title="Raziskuj " />
         <item
+            android:id="@+id/nav_paths"
+            android:title="Poti" />
+        <item
             android:id="@+id/nav_home"
             android:title="Na začetek" />
     </group>

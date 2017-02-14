@@ -3,6 +3,7 @@ package com.example.nejcvesel.pazikjehodis;
 import android.content.Context;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.os.Parcelable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,6 +24,12 @@ import com.example.nejcvesel.pazikjehodis.retrofitAPI.MyLocationAdapter;
  * interface.
  */
 public class LocationFragment extends Fragment {
+    Parcelable state;
+    RecyclerView recView;
+    LinearLayoutManager llm;
+    MyLocationAdapter locAdapter;
+    int positionIndex = -1;
+    int topView;
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -46,39 +53,103 @@ public class LocationFragment extends Fragment {
         return fragment;
     }
 
+//    @Override
+//    public void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        if (getArguments() != null) {
+//            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+//        }
+//    }
+//    @Override
+//    public void onSaveInstanceState(Bundle state) {
+//        super.onSaveInstanceState(state);
+//
+//        state.putParcelable(LIST_STATE_KEY, layoutManager.onSaveInstanceState());
+//    }
+//
+//    protected void onRestoreInstanceState(Bundle state) {
+//        super.onRestoreInstanceState(state);
+//
+//        Parcelable listState = state.getParcelable(LIST_STATE_KEY);
+//    }
+
+
+   @Override
+   public void onPause()
+   {
+       positionIndex= llm.findFirstVisibleItemPosition();
+       View startView = recView.getChildAt(0);
+       topView = (startView == null) ? 0 : (startView.getTop() - recView.getPaddingTop());
+       System.out.println("PAUSE");
+   super.onPause();
+   }
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+    public void onResume()
+    {
+        System.out.println("RESUME");
+        super.onResume();
+
+        if (positionIndex!= -1) {
+            llm.scrollToPositionWithOffset(positionIndex, topView);
         }
+
     }
+
+
+
+
+
+
+
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_location_list, container, false);
 
+
+
+
+
         // Set the adapter
         if (view instanceof RecyclerView) {
+
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;
+            this.recView = recyclerView;
+
             if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
+                LinearLayoutManager llm = new LinearLayoutManager(context);
+                this.llm = llm;
+                recyclerView.setLayoutManager(llm);
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
 
-            final MyLocationAdapter adapter = new MyLocationAdapter(getActivity());
-            BackendAPICall apiCall = new BackendAPICall();
-            apiCall.getAllLocationsToAdapter(((MainActivity)getActivity()).authToken,adapter);
-            recyclerView.setAdapter(adapter);
+            if (positionIndex == -1) {
+                locAdapter = new MyLocationAdapter(getActivity());
+                BackendAPICall apiCall = new BackendAPICall();
+                apiCall.getAllLocationsToAdapter(((MainActivity) getActivity()).authToken, locAdapter);
+
+            }
+                recyclerView.setAdapter(locAdapter);
         }
+        System.out.println(positionIndex);
+
+        if (positionIndex!= -1) {
+            llm.scrollToPositionWithOffset(positionIndex, topView);
+        }
+
         return view;
     }
 
 
-    @Override
+
+
+        @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnListFragmentInteractionListener) {

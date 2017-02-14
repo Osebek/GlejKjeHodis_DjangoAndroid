@@ -12,4 +12,7 @@
     <color name="red">#a53718</color>
     <color name="colorFAB1">#2196F3</color>
     <color name="colorFAB2">#E040FB</color>
+    <color name="vesnaRED">#bb1928</color>
+    <color name="darkGrey">#666666</color>
+    <color name="lightGrey">#cccccc</color>
 </resources>
