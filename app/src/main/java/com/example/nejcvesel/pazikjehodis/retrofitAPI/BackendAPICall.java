@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.widget.ImageView;
 
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.Location;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.LocationInterface;
@@ -13,25 +12,18 @@ import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.Path;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.PathInterface;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.User;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.UserInterface;
-import com.squareup.picasso.Picasso;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by nejcvesel on 09/12/16.
@@ -132,6 +124,51 @@ public class BackendAPICall {
             @Override
             public void onFailure(Call<List<Location>> call, Throwable t) {
                 System.out.println("Fetching locations did not work");
+                Location loc = new Location();
+                loc.setLatitude("46.056946");
+                loc.setLongtitude("14.505751");
+                loc.setTitle("Nalaganje lokacij ni uspelo");
+                loc.setId(-1);
+                loc.setName("Preveri internetno povezavo");
+                loc.setText("Lokacije niso bile uspešno naložene");
+                loc.setPicture("http://127.0.0.1:8000/locationGetAll/files/locations/None/logo_red.png");
+                myLocationAdapter.addData(loc);
+            }
+        });
+    }
+
+    public void getAllAddPathLocationsToAdapter(String authToken, final MyPathAddAdapter myLocationAdapter) {
+
+        List<Location> locations = new ArrayList<Location>();
+        LocationInterface service =
+                ServiceGenerator.createService(LocationInterface.class, authToken);
+
+        Call<List<Location>> call = service.getAllLocations();
+        call.enqueue(new Callback<List<Location>>() {
+            @Override
+            public void onResponse(Call<List<Location>> call, Response<List<Location>> response) {
+                List<Location> locations = response.body();
+
+                for (Location loc : locations)
+                {
+                    myLocationAdapter.addData(loc);
+                    System.out.println("dodal");
+                }
+                BackendAPICall.printLocations(locations);
+            }
+
+            @Override
+            public void onFailure(Call<List<Location>> call, Throwable t) {
+                System.out.println("Fetching locations did not work");
+                Location loc = new Location();
+                loc.setLatitude("46.056946");
+                loc.setLongtitude("14.505751");
+                loc.setTitle("Nalaganje lokacij ni uspelo");
+                loc.setId(-1);
+                loc.setName("Preveri internetno povezavo");
+                loc.setText("Lokacije niso bile uspešno naložene");
+                loc.setPicture("http://127.0.0.1:8000/locationGetAll/files/locations/None/logo_red.png");
+                myLocationAdapter.addData(loc);
             }
         });
     }
@@ -158,6 +195,15 @@ public class BackendAPICall {
 
             @Override
             public void onFailure(Call<List<Path>> call, Throwable t) {
+                Path path = new Path();
+                path.setName("Nalaganje poti ni uspelo");
+                path.setOwner("Prosimo preverite vašo internetno povezavo ali puskisite ponovno");
+                path.setCity("Napaka");
+                path.setDescription("Napaka");
+                ArrayList<Integer> al = new ArrayList<Integer>();
+                path.setPathLocations(al);
+                path.setId(-1);
+                myPathAdapter.addData(path);
                 System.out.println("Fetching locations did not work");
             }
         });
@@ -248,23 +294,14 @@ public class BackendAPICall {
 
     }
 
-    public void addPath(String authToken)
+    public void addPath(Path path, String authToken)
     {
-        ArrayList<Integer> locations = new ArrayList<Integer>();
-        locations.add(3);
-        locations.add(6);
-        locations.add(5);
-        locations.add(1);
 
-        Path path = new Path();
-        path.setName("Moja tretja pot");
-        path.setCity("Ljubljana");
-        path.setPathLocations(locations);
         System.out.println(authToken);
         PathInterface service =
                 ServiceGenerator.createService(PathInterface.class, authToken);
 
-        Call<Path> call = service.createUser(path);
+        Call<Path> call = service.uploadPath(path);
         System.out.println(call);
         call.enqueue(new Callback<Path>() {
             @Override
@@ -295,8 +332,9 @@ public class BackendAPICall {
     }
 
 
-    public void uploadFile(Uri fileUri,Float latitude, Float longtitude, String text, String title, String name,String authToken,Context context)
+    public void uploadFile(Uri fileUri,Float latitude, Float longtitude, String name, String address, String title, String text,String authToken,Context context)
     {
+        System.out.println(authToken);
         FileUploadService service =
                 ServiceGenerator.createService(FileUploadService.class, authToken);
         String filePath = getRealPathFromURI(context,fileUri);
@@ -330,7 +368,11 @@ public class BackendAPICall {
                 RequestBody.create(
                         MediaType.parse("multipart/form-data"), name);
 
-        Call<ResponseBody> call = service.upload(latitude_body,longtitude_body,text_body,title_body,name_body,body);
+        RequestBody address_body =
+                RequestBody.create(
+                        MediaType.parse("multipart/form-data"), address);
+
+        Call<ResponseBody> call = service.upload(latitude_body,longtitude_body,name_body,address_body,title_body,text_body,body);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call,

@@ -1,47 +1,46 @@
 package com.example.nejcvesel.pazikjehodis;
 
 //import android.app.FragmentManager;
+
 import android.app.FragmentManager;
-        import android.content.Intent;
-        import android.net.Uri;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-        import android.support.v4.view.GravityCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-        import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
-        import android.view.MenuItem;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.BackendAPICall;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.FileUpload;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.Location;
+import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.Path;
 import com.facebook.AccessToken;
-import com.facebook.Profile;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
+import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.vision.Frame;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * Created by brani on 12/18/2016.
@@ -61,6 +60,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FloatingActionButton fab,fab1,fab2;
     private Animation fab_open,fab_close,rotate_forward,rotate_backward;
     public ArrayList<String> pathLocations = new ArrayList<String>();
+    public Profile profile;
+    public HashMap<String,String> locationsToAddToPath = new HashMap<String,String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,13 +122,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     View header=navigationView.getHeaderView(0);
                     TextView name = (TextView)header.findViewById(R.id.textView);
                     name.setText(currentProfile.getFirstName() + " " + currentProfile.getLastName());
+                    profile = currentProfile;
 
                 }
 
                 }
         };
 
-        Profile profile = Profile.getCurrentProfile();
+        this.profile = Profile.getCurrentProfile();
 
         fab = (FloatingActionButton)findViewById(R.id.fab);
         fab1 = (FloatingActionButton)findViewById(R.id.fab1);
@@ -168,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         View header=navigationView.getHeaderView(0);
         TextView name = (TextView)header.findViewById(R.id.textView);
         if (AccessToken.getCurrentAccessToken() != null) {
-            name.setText(profile.getFirstName() + " " + profile.getLastName());
+            name.setText(this.profile.getFirstName() + " " + this.profile.getLastName());
         }
         else
         {
@@ -291,11 +293,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 floatA.setVisibility(View.GONE);
                 floatB.setVisibility(View.GONE);
                 floatC.setVisibility(View.GONE);
-                fm.beginTransaction().replace(R.id.content_frame, new PathListFragment(), "LocationFragment").addToBackStack("LocationFragment").commit();
+                fm.beginTransaction().replace(R.id.content_frame, new PathListFragment(), "PathListFragment").addToBackStack("PathListFragment").commit();
                 break;
+            case R.id.nav_add_path:
+                floatA.setVisibility(View.GONE);
+                floatB.setVisibility(View.GONE);
+                floatC.setVisibility(View.GONE);
+                this.locationsToAddToPath.clear();
+                fm.beginTransaction().replace(R.id.content_frame, new PathAddFragment(), "PathAddFragment").addToBackStack("PathAddFragment").commit();
+                break;
+
+
             case R.id.nav_home:
                 Intent intent = new Intent(getApplicationContext(),MainMenuActivity.class);
                 startActivity(intent);
+
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -324,16 +336,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AccessToken at =  AccessToken.getCurrentAccessToken();
         authToken = at.getToken().toString();
         LocationFormFragment form = (LocationFormFragment) getFragmentManager().findFragmentByTag("FormFragment");
-        EditText name = (EditText)form.getView().findViewById(R.id.inputName);
-        EditText title = (EditText)form.getView().findViewById(R.id.inputTitle);
-        EditText description = (EditText)form.getView().findViewById(R.id.inputDescription);
+        TextView name = (TextView) form.getView().findViewById(R.id.inputName);
+        EditText address = (EditText) form.getView().findViewById(R.id.inputAddress);
+        EditText title = (EditText) form.getView().findViewById(R.id.inputTitle);
+        EditText description = (EditText) form.getView().findViewById(R.id.inputDescription);
         TextView imageUrl = (TextView) form.getView().findViewById(R.id.imageURL);
-//        Uri url = Uri.parse(imageUrl.getText().toString());
+        Uri url = Uri.parse(imageUrl.getText().toString());
         if(currentMarker != null) {
             LatLng latlng = currentMarker.getPosition();
             FileUpload sendRequest = new FileUpload();
-            sendRequest.uploadFile(url, ((float) latlng.latitude), ((float) latlng.longitude),
-                    description.getText().toString(), title.getText().toString(), name.getText().toString(),
+            sendRequest.uploadFile(url, ((float) latlng.latitude), ((float) latlng.longitude), name.getText().toString(),
+                    address.getText().toString(),title.getText().toString(), description.getText().toString(),
                     authToken, this.getBaseContext());
         }
         OpenMapsFragment();
@@ -348,9 +361,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AccessToken at =  AccessToken.getCurrentAccessToken();
         authToken = at.getToken().toString();
         System.out.println(authToken);
-       BackendAPICall kliciAPI = new BackendAPICall();
-        kliciAPI.getAllPaths(authToken);
-        kliciAPI.addPath(authToken);
+       //BackendAPICall kliciAPI = new BackendAPICall();
+        //kliciAPI.getAllPaths(authToken);
+        //kliciAPI.addPath(authToken);
         Intent pickPhoto = new Intent(Intent.ACTION_PICK,
                 android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(pickPhoto, 1);
@@ -429,7 +442,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void showLocationOnMap(View v, String pathLocations)
     {
-
+        this.pathLocations.clear();
         pathLocations  = pathLocations.replaceAll("\\[","");
         pathLocations  = pathLocations.replaceAll("\\]","");
         pathLocations = pathLocations.replaceAll(" ","");
@@ -439,9 +452,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             this.pathLocations.add(pathLocationArray[i]);
         }
+
+        System.out.println(Arrays.toString(pathLocationArray));
         FragmentManager fm = getFragmentManager();
         fm.beginTransaction().replace(R.id.content_frame, new MapsFragment(), "MapFragment").addToBackStack("MapFragment").commit();
 
+    }
+
+    public void uploadPath(Path path)
+    {
+        AccessToken at =  AccessToken.getCurrentAccessToken();
+        authToken = at.getToken().toString();
+        BackendAPICall api = new BackendAPICall();
+        api.addPath(path,authToken);
 
 
     }

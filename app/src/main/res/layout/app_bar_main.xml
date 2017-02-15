@@ -14,19 +14,15 @@
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
-            app:titleMargin="0dp"
-            app:titleTextAppearance="@style/TextActionBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/ActionBar"
-            app:titleTextColor="@color/grey"
-            app:titleMarginStart="70dp"
-            app:titleMarginTop="0dp"
-            android:weightSum="1">
+            app:titleTextColor="@color/white"
+            android:weightSum="0">
         <ImageView
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@drawable/logo_zgoraj"
+            android:layout_height="wrap_content"
+            android:background="@drawable/logo_zgoraj_small"
             android:layout_gravity="right"
             android:layout_marginRight="20dp"
             android:id="@+id/toolbar_title"

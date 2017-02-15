@@ -8,7 +8,8 @@
     android:layout_marginRight="0dp"
     android:paddingLeft="0dp"
     android:paddingRight="0dp"
-    android:layout_marginTop="10dp">
+    android:layout_marginTop="10dp"
+    >
 
     <android.support.v7.widget.CardView
         android:layout_width="fill_parent"
@@ -58,6 +59,7 @@
 
 
 
+
             <TextView fontPath="fonts/Ubuntu-light.ttf"
                 android:id="@+id/latitude"
                 android:layout_width="0dp"
@@ -85,6 +87,18 @@
                 android:layout_centerHorizontal="true"
                 android:layout_below="@id/longtitude"
                 />
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:id="@+id/addToPathCheckbox"
+                android:layout_gravity="center"
+                android:scaleX="1.2"
+                android:scaleY="1.2"
+                android:layout_marginBottom="5dp"
+                android:buttonTint="@color/vesnaRED"/>
+
             <TextView fontPath="fonts/Ubuntu-light.ttf"
                 android:id="@+id/locIdentifier"
                 android:layout_weight="0"

@@ -22,7 +22,7 @@ import retrofit2.Response;
 
 public class FileUpload {
 
-    public void uploadFile(Uri fileUri,Float latitude, Float longtitude, String text, String title, String name,String authToken,Context context)
+    public void uploadFile(Uri fileUri,Float latitude, Float longtitude, String name, String address, String title, String text,String authToken,Context context)
     {
         System.out.println(authToken);
         FileUploadService service =
@@ -58,7 +58,11 @@ public class FileUpload {
                 RequestBody.create(
                         MediaType.parse("multipart/form-data"), name);
 
-        Call<ResponseBody> call = service.upload(latitude_body,longtitude_body,text_body,title_body,name_body,body);
+        RequestBody address_body =
+                RequestBody.create(
+                        MediaType.parse("multipart/form-data"), address);
+
+        Call<ResponseBody> call = service.upload(latitude_body,longtitude_body,name_body,address_body,title_body,text_body,body);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call,

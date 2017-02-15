@@ -17,6 +17,7 @@ public class Location {
     private String text;
     private String title;
     private String picture;
+    private String address;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
@@ -160,6 +161,9 @@ public class Location {
     public void setName(String name) {
         this.name = name;
     }
+
+    public String getAddress() {return this.address;}
+    public void setAddress(String address) {this.address = address;}
 
 
     public Map<String, Object> getAdditionalProperties() {

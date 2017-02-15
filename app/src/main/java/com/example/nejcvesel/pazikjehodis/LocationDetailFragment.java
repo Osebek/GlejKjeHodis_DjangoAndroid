@@ -1,10 +1,10 @@
 package com.example.nejcvesel.pazikjehodis;
 
+import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +34,7 @@ public class LocationDetailFragment extends Fragment {
     private static final String ARG_NAME = "name";
     private static final String ARG_PICTURE = "picture";
     private static final String ARG_ID = "id";
+    private static final String ARG_ADDRESS = "address";
 
     // TODO: Rename and change types of parameters
     private String mParamText;
@@ -41,6 +42,7 @@ public class LocationDetailFragment extends Fragment {
     private String mParamName;
     private String mParamPicture;
     private String mParamId;
+    private String mParamAddress;
 
 
     private OnFragmentInteractionListener mListener;
@@ -64,6 +66,7 @@ public class LocationDetailFragment extends Fragment {
         args.putString(ARG_NAME, loc.getName());
         args.putString(ARG_TITLE,loc.getTitle());
         args.putString(ARG_PICTURE,loc.getPicture());
+        args.putString(ARG_ADDRESS,loc.getAddress());
         args.putString(ARG_ID,Integer.toString(loc.getId()));
         fragment.setArguments(args);
         return fragment;
@@ -78,6 +81,7 @@ public class LocationDetailFragment extends Fragment {
             mParamName = getArguments().getString(ARG_NAME);
             mParamPicture = getArguments().getString(ARG_PICTURE);
             mParamId = getArguments().getString(ARG_ID);
+            mParamAddress = getArguments().getString(ARG_ADDRESS);
 
         }
     }
@@ -91,10 +95,23 @@ public class LocationDetailFragment extends Fragment {
         TextView title = (TextView) myInflatedView.findViewById(R.id.locationDetailTitle);
         TextView name = (TextView) myInflatedView.findViewById(R.id.locationDetailName);
         ImageView picture = (ImageView) myInflatedView.findViewById(R.id.locationDetailPicture);
+        ImageView loc_icon = (ImageView) myInflatedView.findViewById(R.id.location_icon);
+
+        loc_icon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MainActivity main = (MainActivity) getActivity();
+                String loc = "[" + mParamId + "]";
+                main.showLocationOnMap(v,loc);
+
+            }
+        });
+
 
         text.setText(mParamText);
         title.setText(mParamTitle);
-        name.setText(mParamName);
+        name.setText(mParamAddress);
+
 
         WindowManager wm = (WindowManager) container.getContext().getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
@@ -105,7 +122,7 @@ public class LocationDetailFragment extends Fragment {
 
 
         Picasso.with(container.getContext()).load("http://10.0.2.2:8000/"+ BackendAPICall.repairURL(mParamPicture))
-                .resize(width-40,height/4)
+                .resize(width-40,(int)(height/2.5))
                 .centerCrop()
                 .into(picture);
 

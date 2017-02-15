@@ -27,11 +27,11 @@
 
 
     <!-- VIEW DETAILS FRAGMENT CONTROL -->
-    <string name="buttonAttach_details">Dodaj sliko</string>
+    <string name="buttonAttach_details">DODAJ SLIKO</string>
     <string name="title_Hint">Vnesi naslov zgodbe</string>
     <string name="name_hint">Dodaj ime</string>
     <string name="description_hint">Dodaj opis</string>
-    <string name="form_picture_text">Dodaj sliko</string>
+    <string name="form_picture_text">       DODAJ SLIKO</string>
     <string name="mainMenuWalkthrough">Kako deluje?</string>
     <string name="mainMenuMap">Prikaži zemljevid</string>
     <string name="mainMenuExplore">Raziskuj</string>

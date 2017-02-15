@@ -1,7 +1,7 @@
 package com.example.nejcvesel.pazikjehodis.retrofitAPI;
 
 /**
- * Created by nejcvesel on 19/12/16.
+ * Created by nejcvesel on 15/02/17.
  */
 
 import android.app.Fragment;
@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -26,14 +27,19 @@ import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.Location;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class MyLocationAdapter extends RecyclerView.Adapter<MyLocationAdapter.ViewHolder> {
+/**
+ * Created by nejcvesel on 19/12/16.
+ */
+
+public class MyPathAddAdapter extends RecyclerView.Adapter<MyPathAddAdapter.ViewHolder> {
     List<Location> mItems;
     Context context;
 
 
-    public MyLocationAdapter(Context context) {
+    public MyPathAddAdapter(Context context) {
         super();
         this.context = context;
         mItems = new ArrayList<Location>();
@@ -52,7 +58,7 @@ public class MyLocationAdapter extends RecyclerView.Adapter<MyLocationAdapter.Vi
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.recycler_view, viewGroup, false);
+                .inflate(R.layout.recycler_view_add_paths, viewGroup, false);
         ViewHolder viewHolder = new ViewHolder(v);
         return viewHolder;
     }
@@ -68,6 +74,7 @@ public class MyLocationAdapter extends RecyclerView.Adapter<MyLocationAdapter.Vi
         viewHolder.title.setText(loc.getTitle());
         viewHolder.pictureURL.setText(loc.getPicture());
         viewHolder.locAddress.setText(loc.getAddress());
+
         Context context = viewHolder.picture.getContext();
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
@@ -76,12 +83,23 @@ public class MyLocationAdapter extends RecyclerView.Adapter<MyLocationAdapter.Vi
         int width = size.x;
         int height = size.y;
 
+        MainActivity main = (MainActivity) context;
+
+        if (main.locationsToAddToPath.containsValue(Integer.toString(loc.getId())))
+        {
+            viewHolder.checkbox.setChecked(true);
+        }
+        else
+        {
+            viewHolder.checkbox.setChecked(false);
+        }
+
         Picasso.with(context).load("http://10.0.2.2:8000/"+ BackendAPICall.repairURL(loc.getPicture()))
                 .resize(width-40,(int)(height/2.5f))
                 .centerCrop()
                 .into(viewHolder.picture);
 
-        }
+    }
 
     @Override
     public int getItemCount() {
@@ -98,6 +116,7 @@ public class MyLocationAdapter extends RecyclerView.Adapter<MyLocationAdapter.Vi
         public TextView name;
         public TextView pictureURL;
         public TextView locAddress;
+        public CheckBox checkbox;
 
 
 
@@ -112,15 +131,32 @@ public class MyLocationAdapter extends RecyclerView.Adapter<MyLocationAdapter.Vi
             name = (TextView) itemView.findViewById(R.id.loc_detail_name);
             pictureURL = (TextView) itemView.findViewById(R.id.picture_url);
             locAddress = (TextView) itemView.findViewById(R.id.locAddress);
+            checkbox = (CheckBox) itemView.findViewById(R.id.addToPathCheckbox);
 
             ImageView icon = (ImageView) itemView.findViewById(R.id.location_icon);
+            final MainActivity main = (MainActivity) context;
             icon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    MainActivity main = (MainActivity) context;
                     String loc = "[" + locationID.getText() + "]";
                     main.showLocationOnMap(v,loc);
 
+                }
+            });
+
+            checkbox.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (checkbox.isChecked())
+                    {
+                        main.locationsToAddToPath.put(locationID.getText().toString(),locationID.getText().toString());
+                    }
+                    else
+                    {
+                        main.locationsToAddToPath.remove(locationID.getText().toString());
+                    }
+
+                    System.out.println(Arrays.toString(main.locationsToAddToPath.values().toArray()));
                 }
             });
 
