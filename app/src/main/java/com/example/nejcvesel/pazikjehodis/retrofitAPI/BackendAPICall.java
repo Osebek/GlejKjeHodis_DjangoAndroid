@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import com.example.nejcvesel.pazikjehodis.MyPathLocationsAdapter;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.Location;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.LocationInterface;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.Path;
@@ -116,7 +117,6 @@ public class BackendAPICall {
                 for (Location loc : locations)
                 {
                     myLocationAdapter.addData(loc);
-                    System.out.println("dodal");
                 }
                 BackendAPICall.printLocations(locations);
             }
@@ -152,7 +152,6 @@ public class BackendAPICall {
                 for (Location loc : locations)
                 {
                     myLocationAdapter.addData(loc);
-                    System.out.println("dodal");
                 }
                 BackendAPICall.printLocations(locations);
             }
@@ -173,7 +172,7 @@ public class BackendAPICall {
         });
     }
 
-    public void getAllPathsToAdapter(String authToken, final MyPathAdapter myPathAdapter) {
+    public void getAllPathsToAdapter(final String authToken, final MyPathAdapter myPathAdapter) {
 
         List<Path> locations = new ArrayList<Path>();
         PathInterface service =
@@ -184,11 +183,11 @@ public class BackendAPICall {
             @Override
             public void onResponse(Call<List<Path>> call, Response<List<Path>> response) {
                 List<Path> paths= response.body();
+                System.out.println(authToken);
 
                 for (Path pth : paths)
                 {
                     myPathAdapter.addData(pth);
-                    System.out.println("dodal");
                 }
                 //BackendAPICall.printLocations(locations);
             }
@@ -220,6 +219,44 @@ public class BackendAPICall {
                 Location location = response.body();
                 System.out.println(location.getPicture());
                 System.out.println(location.getText());
+            }
+
+            @Override
+            public void onFailure(Call<Location> call, Throwable t) {
+                System.out.println("Fetching locations did not work");
+            }
+        });
+    }
+
+    public void getSpecificLocationToAdapter(String authToken, String locationID, final MyLocationAdapter myLocationAdapter) {
+        LocationInterface service =
+                ServiceGenerator.createService(LocationInterface.class, authToken);
+
+        Call<Location> call = service.getSpecificLocation(locationID);
+        call.enqueue(new Callback<Location>() {
+            @Override
+            public void onResponse(Call<Location> call, Response<Location> response) {
+                Location location = response.body();
+                myLocationAdapter.addData(location);
+            }
+
+            @Override
+            public void onFailure(Call<Location> call, Throwable t) {
+                System.out.println("Fetching locations did not work");
+            }
+        });
+    }
+
+    public void getSpecificLocationToExtendedAdapter(String authToken, String locationID, final MyPathLocationsAdapter myLocationAdapter) {
+        LocationInterface service =
+                ServiceGenerator.createService(LocationInterface.class, authToken);
+
+        Call<Location> call = service.getSpecificLocation(locationID);
+        call.enqueue(new Callback<Location>() {
+            @Override
+            public void onResponse(Call<Location> call, Response<Location> response) {
+                Location location = response.body();
+                myLocationAdapter.addData(location);
             }
 
             @Override
@@ -297,12 +334,10 @@ public class BackendAPICall {
     public void addPath(Path path, String authToken)
     {
 
-        System.out.println(authToken);
         PathInterface service =
                 ServiceGenerator.createService(PathInterface.class, authToken);
 
         Call<Path> call = service.uploadPath(path);
-        System.out.println(call);
         call.enqueue(new Callback<Path>() {
             @Override
             public void onResponse(Call<Path> call,

@@ -5,16 +5,15 @@ package com.example.nejcvesel.pazikjehodis;
  */
 
 
+import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.BackendAPICall;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.Path;
@@ -72,7 +71,6 @@ public class PathListFragment extends Fragment{
             BackendAPICall apiCall = new BackendAPICall();
             apiCall.getAllPathsToAdapter(((MainActivity)getActivity()).authToken,adapter);
             recyclerView.setAdapter(adapter);
-
 
 
         }

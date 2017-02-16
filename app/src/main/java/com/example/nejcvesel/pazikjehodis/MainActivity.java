@@ -290,6 +290,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 fm.beginTransaction().replace(R.id.content_frame, new LocationFragment(), "LocationFragment").addToBackStack("LocationFragment").commit();
                 break;
             case R.id.nav_paths:
+                AccessToken at =  AccessToken.getCurrentAccessToken();
+                this.authToken = at.getToken().toString();
+
                 floatA.setVisibility(View.GONE);
                 floatB.setVisibility(View.GONE);
                 floatC.setVisibility(View.GONE);
@@ -466,6 +469,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         BackendAPICall api = new BackendAPICall();
         api.addPath(path,authToken);
 
+
+    }
+    public static String[] stringToStringArray(String pathLocations)
+    {
+
+            pathLocations  = pathLocations.replaceAll("\\[","");
+            pathLocations  = pathLocations.replaceAll("\\]","");
+            pathLocations = pathLocations.replaceAll(" ","");
+            String[] pathLocationArray = pathLocations.split(",");
+        return pathLocationArray;
 
     }
 

@@ -54,6 +54,8 @@ public class MyLocationAdapter extends RecyclerView.Adapter<MyLocationAdapter.Vi
         View v = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.recycler_view, viewGroup, false);
         ViewHolder viewHolder = new ViewHolder(v);
+
+        System.out.println("OnCreateViewHolder " + i);
         return viewHolder;
     }
 
