@@ -52,6 +52,7 @@ public class MyPathLocationsAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         items.add(obj);
         if (obj instanceof  Location)
         {
+            pathLocations.add(String.valueOf(((Location) obj).getId()));
             locItems.add((Location) obj);
         }
         notifyDataSetChanged();
@@ -168,11 +169,6 @@ public class MyPathLocationsAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         Path path = (Path) items.get(position);
         if (path != null)
         {
-            for (int i = 0; i < path.getPathLocations().size(); i++)
-            {
-                this.pathLocations.add(String.valueOf(path.getPathLocations().get(i)));
-            }
-
             vh2.getPath_owner().setText(path.getOwner());
             vh2.getPath_description().setText(path.getDescription());
             vh2.getPathCity().setText(path.getCity());

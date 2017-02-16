@@ -1,9 +1,13 @@
-
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/content"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:orientation="vertical">
+<ScrollView
+    android:id="@+id/content"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:background="@color/white"
+    android:layout_weight="5">
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
@@ -13,7 +17,6 @@
         android:background="@color/white">
 
 
-        <!-- TODO: Update blank fragment layout -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -74,52 +77,59 @@
                 />
         </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="◀"
-                android:id="@+id/goLeft"
-                android:textColor="@color/vesnaRED"
-                android:layout_gravity="bottom|left"
-                android:textSize="20dp"
-                android:paddingTop="10dp"
-                android:layout_marginTop="50dp"
-                android:paddingLeft="10dp"
-                android:paddingBottom="10dp"
-
-                />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="2/5"
-                android:textColor="@color/vesnaRED"
-                android:layout_gravity="bottom|center"
-                android:textSize="20dp"
-                android:id="@+id/contents"
-                android:paddingTop="10dp"
-                android:layout_marginTop="50dp"
-                android:paddingBottom="10dp"
-
-                />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="▶"
-                android:id="@+id/goRight"
-                android:textColor="@color/vesnaRED"
-                android:layout_gravity="bottom|right"
-                android:textSize="20dp"
-                android:paddingRight="10dp"
-                android:paddingTop="10dp"
-                android:layout_marginTop="50dp"
-                android:paddingBottom="10dp"
-
-                />
-
-
 
     </FrameLayout>
 
 </ScrollView>
+
+    <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:orientation="horizontal"
+    android:layout_weight="0.4"
+    android:background="@color/white"
+        android:elevation="2dp"
+       >
+    <TextView fontPath="fonts/Ubuntu-light.ttf"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="◀"
+        android:id="@+id/goLeft"
+        android:textColor="@color/vesnaRED"
+        android:textSize="20dp"
+        android:paddingLeft="20dp"
+        android:layout_gravity="left|center_vertical"
+        android:gravity="left"
+
+
+        />
+
+    <TextView fontPath="fonts/Ubuntu-light.ttf"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="2/5"
+        android:textColor="@color/vesnaRED"
+        android:textSize="20dp"
+        android:id="@+id/contents"
+        android:layout_gravity="center"
+        android:paddingLeft="125dp"
+        android:paddingRight="125dp"
+        android:gravity="center"
+
+        />
+
+    <TextView fontPath="fonts/Ubuntu-light.ttf"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="▶"
+        android:id="@+id/goRight"
+        android:textColor="@color/vesnaRED"
+        android:textSize="20dp"
+        android:paddingRight="10dp"
+        android:layout_gravity="right|center_vertical"
+
+        />
+</LinearLayout>
+
+
+</LinearLayout>

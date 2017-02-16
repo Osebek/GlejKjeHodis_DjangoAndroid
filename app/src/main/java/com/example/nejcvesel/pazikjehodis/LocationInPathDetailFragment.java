@@ -22,6 +22,7 @@ import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.Location;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 /**
@@ -156,8 +157,9 @@ public class LocationInPathDetailFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 int curr = getCurrentLoc(mParamId,mpathLocations);
-                if (curr < mpathLocations.length)
+                if (curr < mpathLocations.length-1)
                 {
+                    System.out.println(Arrays.toString(mpathLocations));
                     curr=curr+1;
                     Location loc = lokacije.get(curr);
                     replace(name,title,text,loc.getName(),container,picture,loc.getTitle(),loc.getText(),loc.getPicture());
