@@ -4,10 +4,11 @@ package com.example.nejcvesel.pazikjehodis.retrofitAPI.Models;
  * Created by nejcvesel on 08/12/16.
  */
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Location {
+public class Location implements Serializable{
     private Integer id;
     private String created;
     private String owner;

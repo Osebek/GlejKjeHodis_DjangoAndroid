@@ -36,6 +36,8 @@ public class PathLocationsFragment extends Fragment {
     MyLocationAdapter locAdapter;
     int positionIndex = -1;
     int topView;
+    MyPathLocationsAdapter specialAdapter;
+
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -118,8 +120,6 @@ public class PathLocationsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view1 = inflater.inflate(R.layout.fragment_path_locations, container, false);
         View view = view1.findViewById(R.id.recyclerViewList);
-        MyPathLocationsAdapter specialAdapter = new MyPathLocationsAdapter();
-
 
 
         // Set the adapter
@@ -139,7 +139,8 @@ public class PathLocationsFragment extends Fragment {
 
             if (positionIndex == -1) {
                 //locAdapter = new MyLocationAdapter(getActivity());
-                MyPathLocationsAdapter locAdapter = new MyPathLocationsAdapter();
+                specialAdapter = new MyPathLocationsAdapter(getActivity());
+
                 Path path = new Path();
                 path.setName(name);
                 path.setCity(city);
@@ -162,11 +163,9 @@ public class PathLocationsFragment extends Fragment {
                     apiCall.getSpecificLocationToExtendedAdapter(((MainActivity) getActivity()).authToken,locIDs[i],specialAdapter);
                 //apiCall.getSpecificLocationToAdapter(((MainActivity) getActivity()).authToken,locIDs[i],locAdapter);
                 }
-
             }
-            System.out.println("before setting adapter to rec view");
             recyclerView.setAdapter(specialAdapter);
-            System.out.println("after setting adapter to rec view");
+
 
         }
 

@@ -1,5 +1,6 @@
 package com.example.nejcvesel.pazikjehodis;
 
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -14,6 +15,8 @@ public class PathLocationsViewHolder1 extends RecyclerView.ViewHolder {
 
     private TextView title, name, address;
     private ImageView img;
+    private CardView card;
+    private ImageView icon;
 
     public PathLocationsViewHolder1(View v) {
         super(v);
@@ -21,7 +24,13 @@ public class PathLocationsViewHolder1 extends RecyclerView.ViewHolder {
         name = (TextView) v.findViewById(R.id.loc_detail_name);
         address = (TextView) v.findViewById(R.id.locAddress);
         img = (ImageView) v.findViewById(R.id.imageView);
+        card = (CardView) v.findViewById(R.id.locationCard);
+        icon = (ImageView) v.findViewById(R.id.location_icon);
     }
+
+    public CardView getCard() {return this.card;}
+
+    public void setCard(CardView card) { this.card = card;}
 
     public TextView getTitle() {
         return this.title;
@@ -53,6 +62,8 @@ public class PathLocationsViewHolder1 extends RecyclerView.ViewHolder {
     {
         return this.img;
     }
+
+    public ImageView getIcon() {return this.icon;}
 
     public void setImg(ImageView img)
     {

@@ -23,6 +23,7 @@
         android:layout_marginRight="0dp"
         card_view:contentPaddingTop="0dp"
         card_view:contentPaddingBottom="0dp"
+        android:id="@+id/locationCard"
         android:background="@color/white"
         >
 
