@@ -78,7 +78,7 @@ public class MyLocationAdapter extends RecyclerView.Adapter<MyLocationAdapter.Vi
         int width = size.x;
         int height = size.y;
 
-        Picasso.with(context).load("http://10.0.2.2:8000/"+ BackendAPICall.repairURL(loc.getPicture()))
+        Picasso.with(context).load(ServiceGenerator.API_BASE_URL + BackendAPICall.repairURL(loc.getPicture()))
                 .resize(width-40,(int)(height/2.5f))
                 .centerCrop()
                 .into(viewHolder.picture);

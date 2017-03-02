@@ -14,8 +14,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class ServiceGenerator {
+    public static final String CLIENT_ID = "RYFCDG354uvYApozGririaCtqshA2bPS40SO4qof";
+    public static String CLIENT_SECRET = "Mg8xZwcTcVsn3lZ3JofSigTo0LcpDXNXbsTpxY2dRqpWDhCvfrOuqqpvvJRqVAjzALZdh4zTnRSYKCdqfUTSUJSTQFzwx7ito5cOETcQL7ihTjxDxrtLRv8oyYEN5zz3";
 
-    public static final String API_BASE_URL = "http://10.0.2.2:8000/";
+    public static final String API_BASE_URL = "http://gis.fri.uni-lj.si/";
 
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
@@ -24,7 +26,7 @@ public class ServiceGenerator {
                     .baseUrl(API_BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create());
 
-    public static <S> S createService(Class<S> serviceClass, final String token) {
+    public static <S> S createAuthorizedService(Class<S> serviceClass, final String token) {
         if (token != null) {
             httpClient.addInterceptor(new Interceptor() {
                 @Override
@@ -33,7 +35,7 @@ public class ServiceGenerator {
                     System.out.println(token);
                     Request.Builder requestBuilder = original.newBuilder()
                             .header("Authorization",
-                                    "Bearer facebook" + " " +  token)
+                                    "Bearer" + " " +  token)
                             .method(original.method(), original.body());
 
                     Request request = requestBuilder.build();
@@ -47,4 +49,21 @@ public class ServiceGenerator {
         Retrofit retrofit = builder.client(httpClient.build()).build();
         return retrofit.create(serviceClass);
     }
+
+    public static <S> S createUnauthorizedService(Class<S> serviceClass) {
+            httpClient.addInterceptor(new Interceptor() {
+                @Override
+                public Response intercept(Interceptor.Chain chain) throws IOException {
+                    Request original = chain.request();
+                    Request.Builder requestBuilder = original.newBuilder()
+                            .method(original.method(), original.body());
+                    Request request = requestBuilder.build();
+                    return chain.proceed(request);
+                }
+            });
+
+        Retrofit retrofit = builder.client(httpClient.build()).build();
+        return retrofit.create(serviceClass);
+    }
+
 }

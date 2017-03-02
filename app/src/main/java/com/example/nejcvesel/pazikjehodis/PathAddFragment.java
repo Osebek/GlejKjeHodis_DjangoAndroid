@@ -9,9 +9,12 @@ import android.os.Parcelable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.BackendAPICall;
@@ -108,6 +111,27 @@ public class PathAddFragment extends Fragment {
         RecyclerView view = (RecyclerView) view1.findViewById(R.id.recyclerViewList);
 
         TextView makePath = (TextView) view1.findViewById(R.id.makePath);
+        final EditText search = (EditText) view1.findViewById(R.id.search);
+
+
+        search.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                locAdapter.getFilter().filter(search.getText().toString());
+
+            }
+        });
+
         final FragmentManager fm = getFragmentManager();
 
 
@@ -154,6 +178,7 @@ public class PathAddFragment extends Fragment {
                 apiCall.getAllAddPathLocationsToAdapter(((MainActivity) getActivity()).authToken, locAdapter);
 
             }
+
             recyclerView.setAdapter(locAdapter);
         }
         System.out.println(positionIndex);
@@ -161,8 +186,6 @@ public class PathAddFragment extends Fragment {
         if (positionIndex!= -1) {
             llm.scrollToPositionWithOffset(positionIndex, topView);
         }
-
-
 
         return view1;
     }

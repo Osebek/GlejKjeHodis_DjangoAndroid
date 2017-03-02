@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.BackendAPICall;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.Location;
+import com.example.nejcvesel.pazikjehodis.retrofitAPI.ServiceGenerator;
 import com.squareup.picasso.Picasso;
 
 
@@ -121,7 +122,7 @@ public class LocationDetailFragment extends Fragment {
         int height = size.y;
 
 
-        Picasso.with(container.getContext()).load("http://10.0.2.2:8000/"+ BackendAPICall.repairURL(mParamPicture))
+        Picasso.with(container.getContext()).load(ServiceGenerator.API_BASE_URL + BackendAPICall.repairURL(mParamPicture))
                 .resize(width-40,(int)(height/2.5))
                 .centerCrop()
                 .into(picture);

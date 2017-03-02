@@ -1,12 +1,15 @@
 package com.example.nejcvesel.pazikjehodis.retrofitAPI;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
 import com.example.nejcvesel.pazikjehodis.MyPathLocationsAdapter;
+import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.AuthorizationInterface;
+import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.BackendToken;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.Location;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.LocationInterface;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.Path;
@@ -15,6 +18,7 @@ import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.User;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.UserInterface;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +41,7 @@ public class BackendAPICall {
         final MyLocationAdapter myLocationAdapter;
         List<Path> paths = new ArrayList<Path>();
         PathInterface service =
-                ServiceGenerator.createService(PathInterface.class, authToken);
+                ServiceGenerator.createUnauthorizedService(PathInterface.class);
 
         Call<List<Path>> call = service.getAllPaths();
         call.enqueue(new Callback<List<Path>>() {
@@ -60,11 +64,10 @@ public class BackendAPICall {
 
 
     public void getAllLocations(String authToken) {
-
         final MyLocationAdapter myLocationAdapter;
         List<Location> locations = new ArrayList<Location>();
         LocationInterface service =
-                ServiceGenerator.createService(LocationInterface.class, authToken);
+                ServiceGenerator.createUnauthorizedService(LocationInterface.class);
 
         Call<List<Location>> call = service.getAllLocations();
         call.enqueue(new Callback<List<Location>>() {
@@ -85,7 +88,7 @@ public class BackendAPICall {
 
         List<Location> locations = new ArrayList<Location>();
         LocationInterface service =
-                ServiceGenerator.createService(LocationInterface.class, authToken);
+                ServiceGenerator.createUnauthorizedService(LocationInterface.class);
 
         Call<List<Location>> call = service.getAllLocations();
         call.enqueue(new Callback<List<Location>>() {
@@ -103,10 +106,10 @@ public class BackendAPICall {
     }
 
     public void getAllLocationsToAdapter(String authToken, final MyLocationAdapter myLocationAdapter) {
-
+        final long startTime = System.currentTimeMillis();
         List<Location> locations = new ArrayList<Location>();
         LocationInterface service =
-                ServiceGenerator.createService(LocationInterface.class, authToken);
+                ServiceGenerator.createUnauthorizedService(LocationInterface.class);
 
         Call<List<Location>> call = service.getAllLocations();
         call.enqueue(new Callback<List<Location>>() {
@@ -118,7 +121,9 @@ public class BackendAPICall {
                 {
                     myLocationAdapter.addData(loc);
                 }
-                BackendAPICall.printLocations(locations);
+                long elapsedTime = System.currentTimeMillis() - startTime;
+                System.out.println("Total elapsed http request/response time in milliseconds: " + elapsedTime);
+
             }
 
             @Override
@@ -131,7 +136,7 @@ public class BackendAPICall {
                 loc.setId(-1);
                 loc.setName("Preveri internetno povezavo");
                 loc.setText("Lokacije niso bile uspešno naložene");
-                loc.setPicture("http://127.0.0.1:8000/locationGetAll/files/locations/None/logo_red.png");
+                loc.setPicture(ServiceGenerator.API_BASE_URL + "locationGetAll/files/locations/None/logo_red.png");
                 myLocationAdapter.addData(loc);
             }
         });
@@ -141,7 +146,7 @@ public class BackendAPICall {
 
         List<Location> locations = new ArrayList<Location>();
         LocationInterface service =
-                ServiceGenerator.createService(LocationInterface.class, authToken);
+                ServiceGenerator.createUnauthorizedService(LocationInterface.class);
 
         Call<List<Location>> call = service.getAllLocations();
         call.enqueue(new Callback<List<Location>>() {
@@ -153,7 +158,8 @@ public class BackendAPICall {
                 {
                     myLocationAdapter.addData(loc);
                 }
-                BackendAPICall.printLocations(locations);
+                myLocationAdapter.getFilter().filter("");
+
             }
 
             @Override
@@ -166,30 +172,29 @@ public class BackendAPICall {
                 loc.setId(-1);
                 loc.setName("Preveri internetno povezavo");
                 loc.setText("Lokacije niso bile uspešno naložene");
-                loc.setPicture("http://127.0.0.1:8000/locationGetAll/files/locations/None/logo_red.png");
+                loc.setPicture(ServiceGenerator.API_BASE_URL + "locationGetAll/files/locations/None/logo_red.png");
                 myLocationAdapter.addData(loc);
             }
         });
+
+        //myLocationAdapter.getFilter().filter("");
     }
 
     public void getAllPathsToAdapter(final String authToken, final MyPathAdapter myPathAdapter) {
 
-        List<Path> locations = new ArrayList<Path>();
         PathInterface service =
-                ServiceGenerator.createService(PathInterface.class, authToken);
+                ServiceGenerator.createUnauthorizedService(PathInterface.class);
 
         Call<List<Path>> call = service.getAllPaths();
         call.enqueue(new Callback<List<Path>>() {
             @Override
             public void onResponse(Call<List<Path>> call, Response<List<Path>> response) {
                 List<Path> paths= response.body();
-                System.out.println(authToken);
 
                 for (Path pth : paths)
                 {
                     myPathAdapter.addData(pth);
                 }
-                //BackendAPICall.printLocations(locations);
             }
 
             @Override
@@ -210,7 +215,7 @@ public class BackendAPICall {
 
     public void getSpecificLocation(String authToken, String locationID) {
         LocationInterface service =
-                ServiceGenerator.createService(LocationInterface.class, authToken);
+                ServiceGenerator.createUnauthorizedService(LocationInterface.class);
 
         Call<Location> call = service.getSpecificLocation(locationID);
         call.enqueue(new Callback<Location>() {
@@ -230,7 +235,7 @@ public class BackendAPICall {
 
     public void getSpecificLocationToAdapter(String authToken, String locationID, final MyLocationAdapter myLocationAdapter) {
         LocationInterface service =
-                ServiceGenerator.createService(LocationInterface.class, authToken);
+                ServiceGenerator.createUnauthorizedService(LocationInterface.class);
 
         Call<Location> call = service.getSpecificLocation(locationID);
         call.enqueue(new Callback<Location>() {
@@ -249,7 +254,7 @@ public class BackendAPICall {
 
     public void getSpecificLocationToExtendedAdapter(String authToken, String locationID, final MyPathLocationsAdapter myLocationAdapter) {
         LocationInterface service =
-                ServiceGenerator.createService(LocationInterface.class, authToken);
+                ServiceGenerator.createUnauthorizedService(LocationInterface.class);
 
         Call<Location> call = service.getSpecificLocation(locationID);
         call.enqueue(new Callback<Location>() {
@@ -268,7 +273,7 @@ public class BackendAPICall {
 
     public void getSpecificUser(String authToken, String userID) {
         UserInterface service =
-                ServiceGenerator.createService(UserInterface.class, authToken);
+                ServiceGenerator.createAuthorizedService(UserInterface.class, authToken);
 
         Call<User> call = service.getUserByID(userID);
         call.enqueue(new Callback<User>() {
@@ -288,7 +293,7 @@ public class BackendAPICall {
 
     public void getAllUsers(String authToken) {
         UserInterface service =
-                ServiceGenerator.createService(UserInterface.class, authToken);
+                ServiceGenerator.createAuthorizedService(UserInterface.class, authToken);
 
         Call<List<User>> call = service.getAllUsers();
         call.enqueue(new Callback<List<User>>() {
@@ -307,8 +312,8 @@ public class BackendAPICall {
 
     public static String repairURL(String pictureURL)
     {
-        String[] rez = pictureURL.split("/files/");
-        return "files/" + rez[1];
+        String[] rez = pictureURL.split("/static/");
+        return "static/" + rez[2];
     }
 
 
@@ -331,11 +336,41 @@ public class BackendAPICall {
 
     }
 
-    public void addPath(Path path, String authToken)
+    public void refreshToken(final String authToken,final SharedPreferences pref)
+    {
+        AuthorizationInterface service = ServiceGenerator.createUnauthorizedService(AuthorizationInterface.class);
+        Call<BackendToken> call = service.refreshToken(
+                "refresh_token",
+                ServiceGenerator.CLIENT_ID,
+                ServiceGenerator.CLIENT_SECRET,
+                pref.getString(authToken + "_refresh","null"));
+
+
+        call.enqueue(new Callback<BackendToken>() {
+            @Override
+            public void onResponse(Call<BackendToken> call, Response<BackendToken> response) {
+                BackendToken newToken = response.body();
+                if (response.isSuccessful()) {
+                    SharedPreferences.Editor editor = pref.edit();
+                    editor.putString(authToken + "_token", newToken.getAccessToken());
+                    editor.putString(authToken + "_refresh", newToken.getRefreshToken());
+                    editor.commit();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<BackendToken> call, Throwable t) {
+
+            }
+        });
+
+    }
+
+    public void addPath(final Path path, final String authToken, final SharedPreferences pref)
     {
 
         PathInterface service =
-                ServiceGenerator.createService(PathInterface.class, authToken);
+                ServiceGenerator.createAuthorizedService(PathInterface.class, pref.getString(authToken + "_token","null"));
 
         Call<Path> call = service.uploadPath(path);
         call.enqueue(new Callback<Path>() {
@@ -343,6 +378,44 @@ public class BackendAPICall {
             public void onResponse(Call<Path> call,
                                    Response<Path> response) {
                 Log.v("Upload", "success");
+                if (response.errorBody() != null)
+                {
+                    try {
+                        String error = response.errorBody().string();
+                        if (error.equals("{\"detail\":\"Invalid token header. No credentials provided.\"}"))
+                        {
+
+                            AuthorizationInterface apiService = ServiceGenerator.createUnauthorizedService(AuthorizationInterface.class);
+                            System.out.println("Refresh token: " + pref.getString(authToken + "_refresh",null));
+                            Call<BackendToken> klic = apiService.refreshToken(
+                                    "refresh_token",
+                                    ServiceGenerator.CLIENT_ID,
+                                    ServiceGenerator.CLIENT_SECRET,
+                                    pref.getString(authToken + "_refresh","null"));
+
+                            System.out.println("auth token: " + authToken);
+
+                            klic.enqueue(new Callback<BackendToken>() {
+                                @Override
+                                public void onResponse(Call<BackendToken> nestedCall, Response<BackendToken> nestedResponse) {
+                                    System.out.println("wat");
+
+                                }
+
+                                @Override
+                                public void onFailure(Call<BackendToken> nestedCall, Throwable t) {
+
+                                }
+                            });
+
+
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+
             }
 
             @Override
@@ -350,6 +423,60 @@ public class BackendAPICall {
                 Log.e("Upload error:", t.getMessage());
             }
         });
+
+
+    }
+
+    public void convertTokenAndAddPath(final Path path, final String authToken, final SharedPreferences sharedPrefs)
+    {
+        AuthorizationInterface auth = ServiceGenerator.createUnauthorizedService(AuthorizationInterface.class);
+        Call<BackendToken> klic = auth.convertToken(
+                "convert_token",
+                ServiceGenerator.CLIENT_ID,
+                ServiceGenerator.CLIENT_SECRET,
+                "facebook",
+                authToken
+        );
+
+        klic.enqueue(new Callback<BackendToken>() {
+            @Override
+            public void onResponse(Call<BackendToken> call, Response<BackendToken> response) {
+                System.out.println("bla");
+                System.out.println(response.body().getRefreshToken());
+                BackendToken bat = response.body();
+                String at = bat.getAccessToken();
+                String refresh = bat.getRefreshToken();
+                SharedPreferences.Editor editor = sharedPrefs.edit();
+                editor.putString(authToken + "_token", at);
+                editor.putString(authToken + "_refresh",refresh);
+                editor.commit();
+
+                PathInterface service =
+                        ServiceGenerator.createAuthorizedService(PathInterface.class, at);
+
+                Call<Path> klicPoti = service.uploadPath(path);
+                klicPoti.enqueue(new Callback<Path>() {
+                    @Override
+                    public void onResponse(Call<Path> call,
+                                           Response<Path> response) {
+                        Log.v("Upload", "success with adding path");
+                    }
+
+                    @Override
+                    public void onFailure(Call<Path> call, Throwable t) {
+                        Log.e("Upload error:", t.getMessage());
+                    }
+                });
+
+
+            }
+
+            @Override
+            public void onFailure(Call<BackendToken> call, Throwable t) {
+
+            }
+        });
+
 
 
     }
@@ -371,7 +498,7 @@ public class BackendAPICall {
     {
         System.out.println(authToken);
         FileUploadService service =
-                ServiceGenerator.createService(FileUploadService.class, authToken);
+                ServiceGenerator.createAuthorizedService(FileUploadService.class, authToken);
         String filePath = getRealPathFromURI(context,fileUri);
         System.out.println(filePath);
 

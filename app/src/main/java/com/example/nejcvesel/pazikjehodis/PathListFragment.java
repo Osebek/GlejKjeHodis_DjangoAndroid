@@ -72,10 +72,7 @@ public class PathListFragment extends Fragment{
             apiCall.getAllPathsToAdapter(((MainActivity)getActivity()).authToken,adapter);
             recyclerView.setAdapter(adapter);
 
-
         }
-
-
 
         return view;
 

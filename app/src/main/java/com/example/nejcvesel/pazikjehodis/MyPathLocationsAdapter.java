@@ -16,6 +16,7 @@ import android.view.WindowManager;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.BackendAPICall;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.Location;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.Path;
+import com.example.nejcvesel.pazikjehodis.retrofitAPI.ServiceGenerator;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -157,7 +158,7 @@ public class MyPathLocationsAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             int width = size.x;
             int height = size.y;
 
-            Picasso.with(context).load("http://10.0.2.2:8000/"+ BackendAPICall.repairURL(loc.getPicture()))
+            Picasso.with(context).load(ServiceGenerator.API_BASE_URL + BackendAPICall.repairURL(loc.getPicture()))
                     .resize(width-40,(int)(height/2.5f))
                     .centerCrop()
                     .into(vh1.getImg());

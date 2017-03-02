@@ -3,9 +3,12 @@ package com.example.nejcvesel.pazikjehodis;
 //import android.app.FragmentManager;
 
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -21,6 +24,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.nejcvesel.pazikjehodis.Walkthrough.WalkthroughActivity;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.BackendAPICall;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.FileUpload;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.Location;
@@ -35,26 +39,34 @@ import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 
 /**
  * Created by brani on 12/18/2016.
  */
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+public class MainActivity extends AppCompatActivity implements
         LocationFragment.OnListFragmentInteractionListener,
-        LocationDetailFragment.OnFragmentInteractionListener{
+        LocationDetailFragment.OnFragmentInteractionListener, PathLocationsFragment.OnListFragmentInteractionListener,
+        LocationInPathDetailFragment.OnFragmentInteractionListener,GoogleApiClient.OnConnectionFailedListener,
+         PathAddFormFragment.OnFragmentInteractionListener, PathAddFragment.OnListFragmentInteractionListener{
     public static String authToken;
     public Marker currentMarker = null;
     public Uri url = null;
     public CallbackManager callbackManager;
     public AccessTokenTracker accessTokenTracker;
-    public AccessToken accessToken;
     public ProfileTracker profileTracker;
     private Boolean isFabOpen = false;
     private FloatingActionButton fab,fab1,fab2;
@@ -62,6 +74,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public ArrayList<String> pathLocations = new ArrayList<String>();
     public Profile profile;
     public HashMap<String,String> locationsToAddToPath = new HashMap<String,String>();
+    public GoogleApiClient mGoogleApiClient;
+    private static final int RC_SIGN_IN = 9001;
+    private static final String TAG = "SignInActivity";
+    BackendAPICall api  = new BackendAPICall();
+    public SharedPreferences sharedPref;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +91,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        sharedPref = getPreferences(Context.MODE_PRIVATE);
+
+
 
 //
 //        FacebookSdk.sdkInitialize(getApplicationContext());
@@ -83,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         Profile profile = Profile.getCurrentProfile();
                         authToken = loginResult.getAccessToken().getToken();
                         AccessToken.setCurrentAccessToken(loginResult.getAccessToken());
+                        api.refreshToken(authToken,sharedPref);
                     }
 
                     @Override
@@ -165,21 +189,56 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        /*NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         View header=navigationView.getHeaderView(0);
         TextView name = (TextView)header.findViewById(R.id.textView);
         if (AccessToken.getCurrentAccessToken() != null) {
             name.setText(this.profile.getFirstName() + " " + this.profile.getLastName());
+            api.refreshToken(authToken,sharedPref);
         }
         else
         {
             name.setText("Anonymous");
 
+        }*/
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        LinkedHashSet<String> defaultVal = new LinkedHashSet<String>();
+        SharedPreferences.Editor edit = sharedPref.edit();
+        //edit.clear();
+        //edit.commit();
+        AccessToken at =  AccessToken.getCurrentAccessToken();
+        authToken = at.getToken().toString();
+        System.out.println(authToken);
+
+
+
+        String token = sharedPref.getString(authToken + "_token","noToken");
+        String refresh_token = sharedPref.getString(authToken + "_refresh", "noRefreshToken");
+
+        if (token.equals("noToken"))
+        {
+        }
+        else
+        {
+            System.out.println(token);
+            System.out.println(refresh_token);
         }
 
-        BackendAPICall bra = new BackendAPICall();
-        //bra.getAllLocations(authToken);
+
+
+
+
 
         FragmentManager fm = getFragmentManager();
         fm.beginTransaction().replace(R.id.content_frame, new MapsFragment(),"MapFragment").addToBackStack("MapFragment").commit();
@@ -255,69 +314,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation vixzxew item clicks here.
-        int id = item.getItemId();
-        FragmentManager fm = getFragmentManager();
-        FloatingActionButton floatA = (FloatingActionButton)findViewById(R.id.fab);
-        FloatingActionButton floatB = (FloatingActionButton)findViewById(R.id.fab1);
-        FloatingActionButton floatC = (FloatingActionButton)findViewById(R.id.fab2);
-
-
-
-        switch (id){
-            case R.id.nav_map:
-                floatA.setVisibility(View.VISIBLE);
-                floatB.setVisibility(View.VISIBLE);
-                floatC.setVisibility(View.VISIBLE);
-                pathLocations.clear();
-                fm.beginTransaction().replace(R.id.content_frame, new MapsFragment(), "MapFragment").addToBackStack("MapFragment").commit();
-                break;
-            case R.id.nav_login:
-                floatA.setVisibility(View.GONE);
-                floatB.setVisibility(View.GONE);
-                floatC.setVisibility(View.GONE);
-
-
-                fm.beginTransaction().replace(R.id.content_frame, new LogInFragment(), "LogInFragment").addToBackStack("LogInFragment").commit();
-                break;
-            case R.id.nav_details:
-                floatA.setVisibility(View.GONE);
-                floatB.setVisibility(View.GONE);
-                floatC.setVisibility(View.GONE);
-                fm.beginTransaction().replace(R.id.content_frame, new LocationFragment(), "LocationFragment").addToBackStack("LocationFragment").commit();
-                break;
-            case R.id.nav_paths:
-                AccessToken at =  AccessToken.getCurrentAccessToken();
-                this.authToken = at.getToken().toString();
-
-                floatA.setVisibility(View.GONE);
-                floatB.setVisibility(View.GONE);
-                floatC.setVisibility(View.GONE);
-                fm.beginTransaction().replace(R.id.content_frame, new PathListFragment(), "PathListFragment").addToBackStack("PathListFragment").commit();
-                break;
-            case R.id.nav_add_path:
-                floatA.setVisibility(View.GONE);
-                floatB.setVisibility(View.GONE);
-                floatC.setVisibility(View.GONE);
-                this.locationsToAddToPath.clear();
-                fm.beginTransaction().replace(R.id.content_frame, new PathAddFragment(), "PathAddFragment").addToBackStack("PathAddFragment").commit();
-                break;
-
-
-            case R.id.nav_home:
-                Intent intent = new Intent(getApplicationContext(),MainMenuActivity.class);
-                startActivity(intent);
-
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
     public void OpenGallery(){
         Intent pickPhoto = new Intent(Intent.ACTION_PICK,
                 android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -348,9 +344,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(currentMarker != null) {
             LatLng latlng = currentMarker.getPosition();
             FileUpload sendRequest = new FileUpload();
-            sendRequest.uploadFile(url, ((float) latlng.latitude), ((float) latlng.longitude), name.getText().toString(),
-                    address.getText().toString(),title.getText().toString(), description.getText().toString(),
-                    authToken, this.getBaseContext());
+
+            String token = sharedPref.getString(authToken + "_token","noToken");
+
+            if (token.equals("noToken"))
+            {
+                sendRequest.convertTokenAndUploadFile(url, ((float) latlng.latitude), ((float) latlng.longitude), name.getText().toString(),
+                        address.getText().toString(),title.getText().toString(), description.getText().toString(),
+                        authToken, this.getBaseContext(),sharedPref);
+            }
+            else {
+                sendRequest.uploadFile(url, ((float) latlng.latitude), ((float) latlng.longitude), name.getText().toString(),
+                        address.getText().toString(),title.getText().toString(), description.getText().toString(),
+                        token, this.getBaseContext());
+
+                //api.refreshToken(authToken,sharedPref);
+            }
         }
         OpenMapsFragment();
         //FragmentManager fm = getFragmentManager();
@@ -386,6 +395,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
 
+        if (requestCode == RC_SIGN_IN) {
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(imageReturnedIntent);
+            handleSignInResult(result);
+        }
+
         switch(requestCode) {
             case 0:
                 if(resultCode == RESULT_OK){
@@ -403,6 +417,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     picText.setText(selectedImage.toString());
 
 
+
 //                    System.out.println(selectedImage.toString());
 //                    FileUpload sendRequest = new FileUpload();
 //                    System.out.println("Do tuki rpidem");
@@ -414,9 +429,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //                    }
                 }
                 break;
+
         }
         callbackManager.onActivityResult(requestCode,resultCode,imageReturnedIntent);
     }
+
+
+
+    private void handleSignInResult(GoogleSignInResult result) {
+        Log.d(TAG, "handleSignInResult:" + result.isSuccess());
+        if (result.isSuccess()) {
+            // Signed in successfully, show authenticated UI.
+            GoogleSignInAccount acct = result.getSignInAccount();
+            //mStatusTextView.setText(getString(R.string.signed_in_fmt, acct.getDisplayName()));
+            System.out.println(acct.getDisplayName());
+           // updateUI(true);
+        } else {
+            // Signed out, show unauthenticated UI.
+           // updateUI(false);
+        }
+    }
+
 
 
 
@@ -467,8 +500,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AccessToken at =  AccessToken.getCurrentAccessToken();
         authToken = at.getToken().toString();
         BackendAPICall api = new BackendAPICall();
-        api.addPath(path,authToken);
 
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        String token = sharedPref.getString(authToken + "_token","noToken");
+
+        if (token.equals("noToken"))
+        {
+            api.convertTokenAndAddPath(path,authToken,sharedPref);
+        }
+        else {
+            api.addPath(path,authToken,sharedPref);
+            //api.refreshToken(authToken,sharedPref);
+        }
 
     }
     public static String[] stringToStringArray(String pathLocations)
@@ -483,4 +526,74 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    /*Navigation drawer on clicked item handler*/
+    public void navigationViewLocationClick(View view){
+        FragmentManager fm = getFragmentManager();
+        fm.beginTransaction().replace(R.id.content_frame, new LocationFragment(), "LocationFragment").addToBackStack("LocationFragment").commit();
+        closeDrawer();
+    }
+
+    public void navigationViewMapClick(View view){
+        FragmentManager fm = getFragmentManager();
+        fm.beginTransaction().replace(R.id.content_frame, new MapsFragment(), "MapFragment").addToBackStack("MapFragment").commit();
+        closeDrawer();
+    }
+
+    public void navigationViewMyLocationClick(View view){
+//        FragmentManager fm = getFragmentManager();
+//        fm.beginTransaction().replace(R.id.content_frame, new MapsFragment(), "MapFragment").addToBackStack("MapFragment").commit();
+        closeDrawer();
+    }
+
+    public void navigationViewPathClick(View view){
+        FragmentManager fm = getFragmentManager();
+        fm.beginTransaction().replace(R.id.content_frame, new PathListFragment(), "PathListFragment").addToBackStack("PathListFragment").commit();
+        closeDrawer();
+    }
+
+    public void navigationViewMyPathClick(View view){
+//        FragmentManager fm = getFragmentManager();
+//        fm.beginTransaction().replace(R.id.content_frame, new MapsFragment(), "MapFragment").addToBackStack("MapFragment").commit();
+        closeDrawer();
+    }
+
+    public void navigationViewSearchClick(View view){
+//        FragmentManager fm = getFragmentManager();
+//        fm.beginTransaction().replace(R.id.content_frame, new MapsFragment(), "MapFragment").addToBackStack("MapFragment").commit();
+        closeDrawer();
+    }
+
+    public void navigationViewAddClick(View view){
+        FragmentManager fm = getFragmentManager();
+        fm.beginTransaction().replace(R.id.content_frame, new PathAddFragment(), "PathAddFragment").addToBackStack("PathAddFragment").commit();
+        closeDrawer();
+    }
+
+    public void navigationViewWhatsNewClick(View view){
+        Intent intent = new Intent(getApplicationContext(),WalkthroughActivity.class);
+        startActivity(intent);
+        closeDrawer();
+    }
+
+    public void navigationViewLogingClick(View view){
+        FragmentManager fm = getFragmentManager();
+        fm.beginTransaction().replace(R.id.content_frame, new LogInFragment(), "LogInFragment").addToBackStack("LogInFragment").commit();
+        closeDrawer();
+    }
+
+    public void navigationViewHomeClick(View view){
+        Intent intent = new Intent(getApplicationContext(), MainMenuActivity.class);
+        startActivity(intent);
+    }
+
+    public void closeDrawer(){
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+
+    }
 }

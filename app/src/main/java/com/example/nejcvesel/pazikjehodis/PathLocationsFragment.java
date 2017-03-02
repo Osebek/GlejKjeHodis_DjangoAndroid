@@ -122,6 +122,8 @@ public class PathLocationsFragment extends Fragment {
         View view = view1.findViewById(R.id.recyclerViewList);
 
 
+
+
         // Set the adapter
         if (view instanceof RecyclerView) {
 
@@ -159,7 +161,6 @@ public class PathLocationsFragment extends Fragment {
 
                 for (int i = 0; i < locIDs.length ; i++)
                 {
-
                     apiCall.getSpecificLocationToExtendedAdapter(((MainActivity) getActivity()).authToken,locIDs[i],specialAdapter);
                 //apiCall.getSpecificLocationToAdapter(((MainActivity) getActivity()).authToken,locIDs[i],locAdapter);
                 }

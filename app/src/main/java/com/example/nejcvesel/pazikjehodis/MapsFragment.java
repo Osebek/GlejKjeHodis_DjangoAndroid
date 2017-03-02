@@ -3,30 +3,28 @@ package com.example.nejcvesel.pazikjehodis;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.example.nejcvesel.pazikjehodis.retrofitAPI.BackendAPICall;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.Location;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.LocationInterface;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.ServiceGenerator;
-import com.facebook.AccessToken;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -68,15 +66,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         mMap.moveCamera(CameraUpdateFactory.newLatLng(ljubljana));
         mMap.animateCamera( CameraUpdateFactory.zoomTo( 12.0f ) );
 
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                ((MainActivity)getActivity()).OpenFormFragment();
-                return true;
-            }
-        });
-
-
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
@@ -99,7 +88,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
 
         });
 
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener ()
+       /* mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener ()
         {
             @Override
             public boolean onMarkerClick(Marker marker) {
@@ -125,6 +114,45 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
 
 
 
+        });*/
+
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            @Override
+            public View getInfoWindow(Marker marker) {
+
+                // Get location from marker
+                Location loc = markerLocationMap.get(marker);
+                // Get layout tooltpi
+                LayoutInflater inflater = (LayoutInflater)getActivity().getSystemService
+                        (Context.LAYOUT_INFLATER_SERVICE);
+                View view = inflater.inflate(R.layout.location_details_marker,null);
+                // Set values to the view
+                TextView header = (TextView) view.findViewById(R.id.header_infowindow);
+                header.setText(loc.getText());
+                TextView content = (TextView) view.findViewById(R.id.content_infowindow);
+                content.setText(loc.getAddress());
+                ImageView image = (ImageView) view.findViewById(R.id.imageHolder);
+//
+//                ViewSwitcher switcher = (ViewSwitcher) view.findViewById(R.id.view_switcher);
+//                switcher.reset();
+                // Server call for pic
+                System.out.println(BackendAPICall.repairURL(loc.getPicture()));
+                Picasso.with(view.getContext()).load(ServiceGenerator.API_BASE_URL + BackendAPICall.repairURL(loc.getPicture()))
+                        .resize(300,100)
+                        .centerCrop()
+                        .into(image);
+
+
+
+
+            return view;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+                return null;
+            }
+
         });
 
         MainActivity main = (MainActivity) getActivity();
@@ -133,7 +161,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             for (int i = 0; i < main.pathLocations.size(); i++) {
                 Location location = new Location();
                 LocationInterface service =
-                        ServiceGenerator.createService(LocationInterface.class, MainActivity.authToken);
+                        ServiceGenerator.createUnauthorizedService(LocationInterface.class);
 
                 Call<Location> call = service.getSpecificLocation(main.pathLocations.get(i));
                 call.enqueue(new Callback<Location>() {
@@ -162,9 +190,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         else {
 
 
-            List<Location> locations = new ArrayList<Location>();
             LocationInterface service =
-                    ServiceGenerator.createService(LocationInterface.class, MainActivity.authToken);
+                    ServiceGenerator.createUnauthorizedService(LocationInterface.class);
 
             Call<List<Location>> call = service.getAllLocations();
             call.enqueue(new Callback<List<Location>>() {

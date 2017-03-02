@@ -40,4 +40,17 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+
+    <!-- Drawer Menu Item -->
+    <string name="menu_map">Zemljevid</string>
+    <string name="menu_loc">Lokacije</string>
+    <string name="menu_my_loc">Moje Lokacije</string>
+    <string name="menu_path">Poti</string>
+    <string name="menu_my_path">Moje poti</string>
+    <string name="menu_search">Iskanje</string>
+    <string name="menu_add_new">Dodaj novo</string>
+    <string name="menu_how_to">Predstavitev</string>
+    <string name="menu_loging">Predstavitev</string>
+
+
 </resources>

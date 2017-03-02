@@ -17,6 +17,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.CheckBox;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -34,25 +36,45 @@ import java.util.List;
  * Created by nejcvesel on 19/12/16.
  */
 
-public class MyPathAddAdapter extends RecyclerView.Adapter<MyPathAddAdapter.ViewHolder> {
-    List<Location> mItems;
+public class MyPathAddAdapter extends RecyclerView.Adapter<MyPathAddAdapter.ViewHolder> implements Filterable {
+
+    List<Location> locationList;
     Context context;
+    Filter locationFilter;
+    protected final List<Location> filteredLocationList;
+
+    public void showFiltered()
+    {
+        for (Location loc : filteredLocationList)
+        {
+            System.out.println(loc.getName());
+        }
+    }
+
 
 
     public MyPathAddAdapter(Context context) {
         super();
         this.context = context;
-        mItems = new ArrayList<Location>();
+        locationList = new ArrayList<Location>();
+        filteredLocationList = new ArrayList<>();
     }
 
     public void addData(Location loc) {
-        mItems.add(loc);
+        locationList.add(loc);
         notifyDataSetChanged();
     }
 
     public void clear() {
-        mItems.clear();
+        locationList.clear();
         notifyDataSetChanged();
+    }
+
+    @Override
+    public Filter getFilter() {
+        if(locationFilter == null)
+           locationFilter = new LocationFilter(this, locationList);
+        return locationFilter;
     }
 
     @Override
@@ -65,7 +87,7 @@ public class MyPathAddAdapter extends RecyclerView.Adapter<MyPathAddAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
-        Location loc = mItems.get(i);
+        Location loc = filteredLocationList.get(i);
         viewHolder.text.setText(loc.getText());
         viewHolder.longtitude.setText("latitude: " + loc.getLatitude());
         viewHolder.latitude.setText("longtitude: " + loc.getLongtitude());
@@ -94,7 +116,7 @@ public class MyPathAddAdapter extends RecyclerView.Adapter<MyPathAddAdapter.View
             viewHolder.checkbox.setChecked(false);
         }
 
-        Picasso.with(context).load("http://10.0.2.2:8000/"+ BackendAPICall.repairURL(loc.getPicture()))
+        Picasso.with(context).load(ServiceGenerator.API_BASE_URL + BackendAPICall.repairURL(loc.getPicture()))
                 .resize(width-40,(int)(height/2.5f))
                 .centerCrop()
                 .into(viewHolder.picture);
@@ -103,7 +125,7 @@ public class MyPathAddAdapter extends RecyclerView.Adapter<MyPathAddAdapter.View
 
     @Override
     public int getItemCount() {
-        return mItems.size();
+        return filteredLocationList.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

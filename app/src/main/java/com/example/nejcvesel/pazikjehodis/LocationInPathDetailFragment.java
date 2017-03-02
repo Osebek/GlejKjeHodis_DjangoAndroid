@@ -15,10 +15,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.example.nejcvesel.pazikjehodis.Utility.OnSwipeTouchListener;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.BackendAPICall;
 import com.example.nejcvesel.pazikjehodis.retrofitAPI.Models.Location;
+import com.example.nejcvesel.pazikjehodis.retrofitAPI.ServiceGenerator;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -124,6 +127,44 @@ public class LocationInPathDetailFragment extends Fragment {
         final TextView goLeft = (TextView) myInflatedView.findViewById(R.id.goLeft);
         final TextView goRight = (TextView) myInflatedView.findViewById(R.id.goRight);
         final TextView navContents = (TextView) myInflatedView.findViewById(R.id.contents);
+        final ScrollView scroll = (ScrollView) myInflatedView.findViewById(R.id.content);
+
+        scroll.setOnTouchListener(new OnSwipeTouchListener(getActivity()) {
+            @Override
+            public void onSwipeRight() {
+                int curr = getCurrentLoc(mParamId,mpathLocations);
+                if (curr > 0)
+                {
+                    curr=curr-1;
+                    Location loc = lokacije.get(curr);
+                    replace(name,title,text,loc.getName(),container,picture,loc.getTitle(),loc.getText(),loc.getPicture());
+                    mParamId = String.valueOf(loc.getId());
+                    navContents.setText(String.valueOf(curr+1) + "/" + String.valueOf(mNumOfLocations));
+
+                }
+            }
+
+            @Override
+            public void onSwipeLeft()
+            {
+                int curr = getCurrentLoc(mParamId,mpathLocations);
+                if (curr < mpathLocations.length-1)
+                {
+                    System.out.println(Arrays.toString(mpathLocations));
+                    curr=curr+1;
+                    Location loc = lokacije.get(curr);
+                    replace(name,title,text,loc.getName(),container,picture,loc.getTitle(),loc.getText(),loc.getPicture());
+                    mParamId = String.valueOf(loc.getId());
+                    navContents.setText(String.valueOf(curr+1) + "/" + String.valueOf(mNumOfLocations));
+
+
+                }
+
+            }
+        });
+
+
+
 
 
         loc_icon.setOnClickListener(new View.OnClickListener() {
@@ -189,7 +230,7 @@ public class LocationInPathDetailFragment extends Fragment {
         int height = size.y;
 
 
-        Picasso.with(container.getContext()).load("http://10.0.2.2:8000/"+ BackendAPICall.repairURL(location.getPicture()))
+        Picasso.with(container.getContext()).load(ServiceGenerator.API_BASE_URL + BackendAPICall.repairURL(location.getPicture()))
                 .resize(width-40,(int)(height/2.5))
                 .centerCrop()
                 .into(picture);
@@ -238,7 +279,7 @@ public class LocationInPathDetailFragment extends Fragment {
         int height = size.y;
 
 
-        Picasso.with(container.getContext()).load("http://10.0.2.2:8000/"+ BackendAPICall.repairURL(newImageURL))
+        Picasso.with(container.getContext()).load(ServiceGenerator.API_BASE_URL + BackendAPICall.repairURL(newImageURL))
                 .resize(width-40,(int)(height/2.5))
                 .centerCrop()
                 .into(picture);
